@@ -44,10 +44,14 @@ async function makeComments(json) {
 }
 
 function formatData(item) {
-    return {
-        uuid: item.uuid,
-        userEmail: 'todor.khristov@jolt-capital.com',
-        content: item.comment,
+    if (item.uuid && item.comment)  {
+        return {
+            uuid: item.uuid,
+            userEmail: 'todor.khristov@jolt-capital.com',
+            content: item.comment,
+        }
+    } else {
+        return {};
     }
 }
 
