@@ -2,7 +2,10 @@ const program = require('commander');
 const csv = require('csv-parser')
 const fs = require('fs');
 const path = require('path');
-import Promise from 'bluebird';
+const Promise = require('bluebird');
+const axios = require('axios');
+
+csv({ separator: ';' });
 
 program
     .usage('[options]')
@@ -13,40 +16,65 @@ program
     .option('-v, --verbose', 'Print the result list')
     .parse(process.argv);
 
-// csvjson options
-const options = {
-  delimiter: ',', // optional
-  quote: '"'
-};
+const api = 'https://i8i7s543g6.execute-api.us-west-2.amazonaws.com/production/';
+const apiKey = 'v6ZBsS9BK59GlP7O7Eb3x1WHQ83spOlj4mDIk3c9';
+const devApi = 'https://q2dfmruvb9.execute-api.us-west-2.amazonaws.com/dev/';
+const devApiKey = 'lwr8kOIKWl4I9mq6eMo9n8RTEMkAEsGz4pT3ZJaF';
 
 if (program.file) {
   const json = [];
   fs.createReadStream(program.file)
-  .pipe(csv())
+  .pipe(csv({ separator: ';' }))
   .on('data', (data) => {
     json.push(data)
   })
   .on('end', async () => {
-    // console.log("json", json.slice(0, 5));
-    // write_ret_to_disk(json);
-    // const name1 = row[keys.name1];
-    // const name2 = row[keys.name2];
-    // const ret = await Promise.mapSeries(['Validus', name2], async (name) => Company.reconcile({name, type: 'COMPANY'}));
-    // await allCompanyNames(json);
-    // await uploadMeetings(json);
-    // await uploadBdopps(json);
-    // updateUuidUpdatedCsv(json);
-    // await handleElephantList(json);
-    const dict = json.reduce((accu, i) => {
-      accu[i['Name']] = i['ninja uuid'];
-      return accu;
-    } , {});
-    const json1 = require("./updatedBdoppsUuidUsingUuid2.json");
-    await uploadBdopps(json1, dict);
+    const ret = await makeComments(json);
+    console.log(ret);
   });
 } else {
   console.log("no input, quit");
 }
+
+async function makeComments(json) {
+    return await Promise.mapSeries(json, async (item) => {
+        const data = formatData(item);
+        return sendToApi(data, api, apiKey);
+    });
+}
+
+function formatData(item) {
+    return {
+        uuid: item.uuid,
+        userEmail: 'todor.khristov@jolt-capital.com',
+        content: item.comment,
+    }
+}
+
+async function sendToApi(data, url, key) {
+    return axios
+    .request({
+      method: 'post',
+      url: url + '/connector/comment/new',
+      data,
+      headers: { 'x-api-key': key },
+    }).catch(e => console.log(e)).then(ret => ret.data);
+}
+
+async function test(data, url, key) {
+    const endPoint = url + 'connector/sources';
+    console.log(endPoint);
+    const ret = await axios
+    .request({
+      method: 'get',
+      url: endPoint,
+      headers: { 'x-api-key': key },
+    }).catch(e => console.log(e));
+    console.log(ret);
+    return ret;
+}
+
+
 
 // %-----------------------------------------
 // eslint-disable-next-line

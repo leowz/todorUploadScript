@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "leowz <weng.zhang@icloud.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "bluebird": "^3.7.2",
+    "commander": "^6.0.0",
+    "csv-parser": "^2.3.3"
+  }
 }
