@@ -1,0 +1,7 @@
+{
+  "name": "connectorScript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "leowz <weng.zhang@icloud.com>",
+  "license": "MIT"
+}
